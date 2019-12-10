@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+data:
+  url: jdbc:mysql://localhost:3306/shareimage
+  driver: com.mysql.jdbc.Driver
+  username: root
+  password: 123456
