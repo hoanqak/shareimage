@@ -6,3 +6,13 @@ data:
   driver: com.mysql.jdbc.Driver
   username: root
   password: 123456
+
+
+sendgrid:
+  api:
+    key: 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
+
+mail:
+  from: hoangth@itleadpro.vn
+  name:
+    app: APP OF ME
