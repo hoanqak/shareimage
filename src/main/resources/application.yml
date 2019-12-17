@@ -13,6 +13,5 @@ sendgrid:
     key: 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
 
 mail:
-  from: hoangth@itleadpro.vn
-  name:
-    app: APP OF ME
+  user: scofjeld@gmail.com
+  password: saranghae123

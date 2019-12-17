@@ -9,20 +9,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class SendMailServiceImpl implements SendMailService
 {
 
-    @Value("${mail.from}")
+   /* @Value("${mail.from}")
     private String mailFrom;
 
     @Value("${mail.name.app}")
-    private String nameApp;
+    private String nameApp;*/
 
     @Value("${sendgrid.api.key}")
-    private String apiKey;
+    private String apiKey = "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";
 
     private static final String KEY_X_MOCK = "X-Mock";
 
@@ -41,6 +42,8 @@ public class SendMailServiceImpl implements SendMailService
             request.setBody(mail.build());
 
             Response response = sendGrid.api(request);
+            System.out.println(response);
+            System.out.println(response.getBody());
             return response;
         }
         catch (IOException e)
@@ -50,14 +53,18 @@ public class SendMailServiceImpl implements SendMailService
         return null;
     }
 
+    public static void main(String[] args)
+    {
+        new SendMailServiceImpl().sendMail("HIHIHI", "HAHAHAHHAHA", Arrays.asList("tranhuyhoang240398@gmail.com"));
+    }
 
 
     private Mail buildMailToSend(String subject, String content, List<String> sendTo){
         Mail mail = new Mail();
 
         Email emailFrom = new Email();
-        emailFrom.setEmail(mailFrom);
-        emailFrom.setName(nameApp);
+        emailFrom.setEmail("hoangth@itleadpro.vn");
+        emailFrom.setName("HAHAHHA");
 
         mail.setFrom(emailFrom);
         mail.setSubject(subject);

@@ -5,16 +5,19 @@ import com.configuration.Validation;
 import com.dto.UserDTO;
 import com.entity.AccessToken;
 import com.entity.User;
+import com.service.mail.SendMailSMTP;
 import com.service.mail.SendMailService;
 import com.service.notification.ErrorCode;
 import com.service.notification.ResponseResult;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Query;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -25,8 +28,9 @@ public class UserServiceImpl implements UserService
     @Autowired MD5 md5;
     private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
     @Autowired SendMailService sendMailService;
+    @Autowired SendMailSMTP sendMail;
     @Override
-    public String loginUser(UserDTO userDTO)
+    public ResponseResult loginUser(UserDTO userDTO)
     {
         Session session = hibernateUtils.getSessionFactory().openSession();
         String sql = "FROM " + User.class.getName() + " as u where u.username = :username";
@@ -36,7 +40,9 @@ public class UserServiceImpl implements UserService
         List<User> userList = query.getResultList();
         if(userList != null && userList.size() > 0){
             User user =  userList.get(0);
-
+            if(md5.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
+                return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
+            }
             AccessToken accessToken = getAccessToken(user.getId());
             if(accessToken == null){
                 accessToken = new AccessToken();
@@ -46,10 +52,10 @@ public class UserServiceImpl implements UserService
                 session.beginTransaction().commit();
             }
             session.close();
-            return accessToken.getAccessToken();
+            return ResponseResult.isSuccess(ErrorCode.SUCCESS, new HashMap<>().put("accessToken", accessToken.getAccessToken()));
         }
         session.close();
-        return null;
+        return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
     }
 
     @Override
@@ -77,8 +83,8 @@ public class UserServiceImpl implements UserService
                 int id = (int) session.save(user);
                 session.beginTransaction().commit();
                 session.close();
-
-                sendMailService.sendMail("Active account", "localhost:8081/activated?code="+ md5.convertToMD5(String.valueOf(id)), Arrays.asList(userDTO.getEmail()));
+                String linkActive = String.format("<a href='%s'>GO</a>", "http://localhost:8081/api/activated?code=" + md5.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id);
+                sendMail.send(userDTO.getEmail(), "Verify account", linkActive);
                 return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
             }
         }
@@ -86,6 +92,21 @@ public class UserServiceImpl implements UserService
         return ResponseResult.failed(ErrorCode.PASSWORD_IVALID);
     }
 
+    @Override
+    public User getUserById(int id)
+    {
+        Session session = hibernateUtils.getSessionFactory().openSession();
+        User user =  session.get(User.class, id);
+        session.close();
+        return user;
+    }
+
+    public void update(User user){
+        Session session = hibernateUtils.getSessionFactory().openSession();
+        session.update(user);
+        session.beginTransaction().commit();
+        session.close();
+    }
 
 
     public AccessToken getAccessToken(int userID){
@@ -99,5 +120,20 @@ public class UserServiceImpl implements UserService
             return accessTokens.get(0);
         }
         return null;
+    }
+
+    @Override
+    public ResponseResult activeAccount(String code){
+        User user = getUserById(Integer.parseInt(code.split("-")[1]));
+        if(user != null)
+        {
+            if(user.isActive()){
+                return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
+            }
+            user.setActive(true);
+            update(user);
+            return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
+        }
+        return ResponseResult.failed(ErrorCode.USER_NOT_EXISTS);
     }
 }

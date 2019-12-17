@@ -1,12 +1,20 @@
 package com.service;
 
 import com.dto.UserDTO;
+import com.entity.User;
 import com.service.notification.ResponseResult;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface UserService
 {
-    String loginUser(UserDTO userDTO);
+    ResponseResult loginUser(UserDTO userDTO);
+
     ResponseResult register(UserDTO userDTO);
+
+    User getUserById(int id);
+
+    void update(User user);
+
+    ResponseResult activeAccount(String code);
 }
