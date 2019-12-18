@@ -1,21 +1,26 @@
 package com.entity;
 
-import com.service.base.EntityBaseService;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
-@Table(name = "access_token")
+@Table
 @Data
-public class AccessToken extends EntityBaseService
+public class Profile
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "full_name")
+    private String fullName;
     @Column
-    private String accessToken;
+    private String address;
+    private int age;
+    private Date birthday;
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
+
 }

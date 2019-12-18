@@ -1,4 +1,4 @@
-package com.service;
+package com.service.base;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;

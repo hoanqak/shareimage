@@ -10,11 +10,13 @@ public interface UserService
 {
     ResponseResult loginUser(UserDTO userDTO);
 
-    ResponseResult register(UserDTO userDTO);
+    ResponseResult register(UserDTO userDTO, String lang);
 
     User getUserById(int id);
 
     void update(User user);
 
     ResponseResult activeAccount(String code);
+
+    void upload();
 }

@@ -1,14 +1,16 @@
 package com.entity;
 
-import com.service.EntityBaseService;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Table(name = "user")
 @Entity
 @Data
-public class User extends EntityBaseService
+public class User
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +20,8 @@ public class User extends EntityBaseService
     private String password;
     private String email;
     private boolean active;
+    @CreationTimestamp
+    private Date createdAt;
+    @UpdateTimestamp
+    private Date updatedAt;
 }

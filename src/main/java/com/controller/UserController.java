@@ -12,12 +12,21 @@ public class UserController
 {
     @Autowired UserService userService;
     @PostMapping("/singup")
-    public ResponseEntity signUp(@RequestBody UserDTO userDTO){
-        return ResponseEntity.ok(userService.register(userDTO));
+    public ResponseEntity signUp(@RequestBody UserDTO userDTO, @RequestParam("lang") String lang){
+        return ResponseEntity.ok(userService.register(userDTO, lang));
     }
-
     @GetMapping("activated")
     public ResponseEntity activateAccount(@RequestParam("code") String code){
         return ResponseEntity.ok(userService.activeAccount(code));
     }
+    @PostMapping("/login")
+    public ResponseEntity login(@RequestBody UserDTO user){
+        return ResponseEntity.ok(userService.loginUser(user));
+    }
+
+    @GetMapping("/upload")
+    public void upload(){
+        userService.upload();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.configuration;
 
 import com.entity.AccessToken;
+import com.entity.Image;
 import com.entity.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -46,6 +47,7 @@ public class HibernateUtils
         configuration.setProperties(properties);
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(AccessToken.class);
+        configuration.addAnnotatedClass(Image.class);
         return configuration;
     }
 
@@ -56,6 +58,7 @@ public class HibernateUtils
         properties.put(Environment.USER, USERNAME);
         properties.put(Environment.PASS, PASSWORD);
         properties.put(Environment.SHOW_SQL, true);
+        properties.put(Environment.FORMAT_SQL, true);
         properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
         return properties;
     }

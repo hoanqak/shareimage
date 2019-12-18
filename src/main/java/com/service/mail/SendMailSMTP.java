@@ -45,7 +45,10 @@ public class SendMailSMTP
         message.setSubject(subject);
 
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(content, "text/html");
+        mimeBodyPart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
+        mimeBodyPart.setContent(content, "text/html; charset=UTF-8");
+
+
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
 
