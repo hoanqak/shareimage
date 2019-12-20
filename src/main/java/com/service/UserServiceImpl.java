@@ -29,13 +29,12 @@ public class UserServiceImpl extends BaseService implements UserService
     @Autowired HibernateUtils hibernateUtils;
     @Autowired DozerService dozerService;
     @Autowired MD5 md5;
-    private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
     @Autowired SendMailService sendMailService;
     @Autowired SendMailSMTP sendMail;
     @Autowired LocalizationMessage localizationMessage;
     @Value("${cus.host}")
     private String host;
-
+    private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
     private String apiVerify = "api/activated?code=";
 
     @Override
@@ -105,23 +104,6 @@ public class UserServiceImpl extends BaseService implements UserService
         return ResponseResult.failed(ErrorCode.PASSWORD_IVALID);
     }
 
-    @Override
-    public User getUserById(int id)
-    {
-        Session session = hibernateUtils.getSessionFactory().openSession();
-        User user =  session.get(User.class, id);
-        session.close();
-        return user;
-    }
-
-    public void update(User user){
-        Session session = hibernateUtils.getSessionFactory().openSession();
-        session.update(user);
-        session.beginTransaction().commit();
-        session.close();
-    }
-
-
     public AccessToken getAccessToken(int userID){
         Session session = hibernateUtils.getSessionFactory().openSession();
         String sql = "FROM "+AccessToken.class.getName() +" as a where a.user.id = :userId";
@@ -139,7 +121,7 @@ public class UserServiceImpl extends BaseService implements UserService
     public ResponseResult activeAccount(String code){
         try
         {
-            User user = getUserById(Integer.parseInt(code.split("-")[1]));
+            User user = (User) getById(new User(), Integer.parseInt(code.split("-")[1]));
             if(user != null)
             {
                 if(user.isActive()){
@@ -158,10 +140,7 @@ public class UserServiceImpl extends BaseService implements UserService
 
     public void upload(){
         File file = new File(File.separator + "home.jpg");
-            byte[] bFile = new byte[(int) file.length()];
-            System.out.println(bFile);
-            Session session = hibernateUtils.getSessionFactory().openSession();
-
+        byte[] bFile = new byte[(int) file.length()];
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             fileInputStream.read(bFile);
@@ -173,8 +152,6 @@ public class UserServiceImpl extends BaseService implements UserService
             image.setSize((int) file.length());
             image.setFileName(file.getName());
             image.setImage(bFile);
-            session.save(image);
-            session.beginTransaction().commit();
-            session.close();
+            save(image);
     }
 }
