@@ -6,9 +6,10 @@ import java.net.Socket;
 public class SocketClient
 {
 
-    public static void main(String[] args) throws IOException
+
+    private static void connectToServer(String host, int port, String username) throws IOException
     {
-        Socket socket =new Socket("localhost", 9999);
+        Socket socket =new Socket(host, port);
         System.out.println("Connected");
         DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
@@ -33,8 +34,13 @@ public class SocketClient
 
         read.start();
         while (true){
-            dataOutputStream.writeUTF(br.readLine());
+            dataOutputStream.writeUTF(username +": "+br.readLine());
             dataOutputStream.flush();
         }
+    }
+
+    public void test(String[] args) throws IOException
+    {
+        connectToServer("localhost", 9999, "Hoangth");
     }
 }

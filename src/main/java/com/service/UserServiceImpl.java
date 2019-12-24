@@ -7,9 +7,7 @@ import com.entity.AccessToken;
 import com.entity.Image;
 import com.entity.User;
 import com.service.base.BaseService;
-import com.service.mail.SendMailSMTP;
-import com.service.mail.SendMailService;
-import com.service.mail.TemplateMail;
+import com.service.mail.SendMailActivateAccount;
 import com.service.notification.ErrorCode;
 import com.service.notification.LocalizationMessage;
 import com.service.notification.ResponseResult;
@@ -29,14 +27,16 @@ public class UserServiceImpl extends BaseService implements UserService
     @Autowired HibernateUtils hibernateUtils;
     @Autowired DozerService dozerService;
     @Autowired MD5 md5;
-    @Autowired SendMailService sendMailService;
-    @Autowired SendMailSMTP sendMail;
+    @Autowired SendMailActivateAccount sendMail;
     @Autowired LocalizationMessage localizationMessage;
     @Value("${cus.host}")
     private String host;
+    @Value("${server.port}")
+    private int port;
     private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
     private String apiVerify = "api/activated?code=";
-
+    @Value("${mail.user}")
+    private String email;
     @Override
     public ResponseResult loginUser(UserDTO userDTO)
     {
@@ -93,10 +93,10 @@ public class UserServiceImpl extends BaseService implements UserService
                 user.setEmail(userDTO.getEmail());
                 user.setActive(false);
                 int id = (int) save(user);
-                String templateMailActive = TemplateMail.getTemplateVerifyAccount();
-                String linkActive = String.format(templateMailActive, host + apiVerify + md5.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id);
                 String subject = localizationMessage.getMessageByLocale("label.verify.account", locale);
-                sendMail.send(userDTO.getEmail(), subject, linkActive);
+                sendMail.createMail(userDTO.getEmail(), subject, new String[] {
+                        host + port + apiVerify + md5.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
+                        email}).sendService();
                 return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
             }
         }

@@ -7,7 +7,7 @@ import java.net.Socket;
 public class SocketServer
 {
 
-    public static void main(String[] args) throws IOException
+    public static void test(String[] args) throws IOException
     {
         ServerSocket serverSocket = new ServerSocket(9999);
         Socket socket = serverSocket.accept();

@@ -2,7 +2,7 @@ server:
   port: 8081
 
 cus:
-  host: http://localhost:8081/
+  host: http://localhost
 
 
 data:
