@@ -119,5 +119,4 @@ public abstract class MailService
 
     public abstract MailService createMail(String sendTo, String subject, String parameter[]);
 
-
 }

@@ -19,3 +19,8 @@ sendgrid:
 mail:
   user: scofjeld@gmail.com
   password: saranghae123
+
+drive:
+  google:
+    folder:
+      image-upload: 1RWUUAWJjx9X1e6JD8bkG2_XmfTdFw3HC
