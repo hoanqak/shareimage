@@ -20,11 +20,6 @@ public class UserController
         return ResponseEntity.ok(userService.loginUser(user));
     }
 
-    @GetMapping("/upload")
-    public void upload(){
-        userService.upload();
-    }
-
     @GetMapping("activeAPI")
     public ResponseEntity activateAccount(@RequestParam("code") String code){
         return ResponseEntity.ok(userService.activeAccount(code));

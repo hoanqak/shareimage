@@ -17,7 +17,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class Drive
+public class GoogleDrive
 {
 
     private static String APPLICATION_NAME = "APP";
@@ -27,14 +27,14 @@ public class Drive
 
     public static Credential createCredential() throws URISyntaxException, IOException, GeneralSecurityException
     {
-        File file = new File(Drive.class.getResource("/google_photo/client_secret_tranhuyhoang240398_IMGPROJECT.json").toURI());
+        File file = new File(GoogleDrive.class.getResource("/google_drive/client_secret_tranhuyhoang240398_IMGPROJECT.json").toURI());
 
         InputStream inputStream = new FileInputStream(file);
 
         GoogleClientSecrets googleClientSecrets = GoogleClientSecrets.load(JACKSON_FACTORY,new InputStreamReader(inputStream));
 
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(),
-                googleClientSecrets, scopes).setDataStoreFactory(new FileDataStoreFactory(new File("tokens"))).setAccessType("offline").build();
+                googleClientSecrets, scopes).setDataStoreFactory(new FileDataStoreFactory(new File("auth-google-drive"))).setAccessType("offline").build();
 
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }

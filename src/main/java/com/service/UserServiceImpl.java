@@ -26,7 +26,6 @@ public class UserServiceImpl extends BaseService implements UserService
 {
     @Autowired HibernateUtils hibernateUtils;
     @Autowired DozerService dozerService;
-    @Autowired MD5 md5;
     @Autowired SendMailActivateAccount sendMail;
     @Autowired LocalizationMessage localizationMessage;
     @Value("${cus.host}")
@@ -47,7 +46,7 @@ public class UserServiceImpl extends BaseService implements UserService
         List<User> userList = query.getResultList();
         if(userList != null && userList.size() > 0){
             User user =  userList.get(0);
-            if(!md5.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
+            if(!MD5Converter.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
                 return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
             }
             AccessToken accessToken = getAccessToken(user.getId());
@@ -89,13 +88,13 @@ public class UserServiceImpl extends BaseService implements UserService
             if(userDTO.getPassword().equals(userDTO.getRePassword())){
                 User user = new User();
                 user.setUsername(userDTO.getUsername());
-                user.setPassword(md5.convertToMD5(userDTO.getPassword()));
+                user.setPassword(MD5Converter.convertToMD5(userDTO.getPassword()));
                 user.setEmail(userDTO.getEmail());
                 user.setActive(false);
                 int id = (int) save(user);
                 String subject = localizationMessage.getMessageByLocale("label.verify.account", locale);
                 sendMail.createMail(userDTO.getEmail(), subject, new String[] {
-                        host + port + apiVerify + md5.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
+                        host + port + apiVerify + MD5Converter.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
                         email}).sendService();
                 return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
             }

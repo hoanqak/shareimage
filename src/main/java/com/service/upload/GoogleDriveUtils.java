@@ -21,14 +21,14 @@ public class GoogleDriveUtils
 
     public static Credential getCredential() {
         try {
-            File file = new File(GoogleDriveUtils.class.getResource("/google_photo/client_secret_tranhuyhoang240398_IMGPROJECT.json").toURI());
+            File file = new File(GoogleDriveUtils.class.getResource("/google_drive/client_secret_tranhuyhoang240398_IMGPROJECT.json").toURI());
 
             InputStream inputStream = new FileInputStream(file);
 
             GoogleClientSecrets clientSecrets = new GoogleClientSecrets().load(JacksonFactory.getDefaultInstance(), new InputStreamReader(inputStream));
 
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(),
-                    clientSecrets, Collections.singletonList(DriveScopes.DRIVE)).setDataStoreFactory(new FileDataStoreFactory(new File("tokens"))).setAccessType("offline").build();
+                    clientSecrets, Collections.singletonList(DriveScopes.DRIVE)).setDataStoreFactory(new FileDataStoreFactory(new File("auth-google-drive"))).setAccessType("offline").build();
             Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
 
             return credential;
