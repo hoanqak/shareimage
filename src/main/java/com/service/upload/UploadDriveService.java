@@ -12,10 +12,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 @Service
 public class UploadDriveService
 {
+    private final Logger LOGGER = Logger.getLogger(UploadDriveService.class.toString());
     @Value("${drive.google.folder.image-upload}")
     private String folderID;
 
@@ -84,9 +86,18 @@ public class UploadDriveService
         file.setParents(Arrays.asList(googleFolderId));
         file.setName(fileName);
         Drive drive = GoogleDriveUtils.getDrive();
+        LOGGER.info("Start upload ..........");
         drive.files().create(file, inputStreamContent).execute();
-
-        return googleDriveService.getFileByName(fileName);
+        LOGGER.info("Done !!!!");
+        File result = googleDriveService.getFileByName(fileName);
+        new Thread(){
+            @Override
+            public void run()
+            {
+                GoogleDriveUtils.createPermissionPublic(result.getId());
+            }
+        }.start();
+        return result;
     }
 
 }

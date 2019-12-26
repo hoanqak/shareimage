@@ -1,5 +1,7 @@
 package com.controller;
 
+import com.google.api.services.drive.model.File;
+import com.service.upload.GoogleDriveUtils;
 import com.service.upload.UploadDriveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,9 @@ public class UploadController
     public ResponseEntity uploadFile(@RequestParam("file")MultipartFile multipartFile)
     {
         try {
-                return ResponseEntity.ok(uploadToServer.upload(multipartFile.getInputStream(),
-                        new Date().getTime() + multipartFile.getOriginalFilename()));
+            File file = uploadToServer.upload(multipartFile.getInputStream(),
+                    new Date().getTime() + multipartFile.getOriginalFilename());
+                return ResponseEntity.ok(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

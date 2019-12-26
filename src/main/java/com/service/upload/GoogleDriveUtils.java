@@ -10,6 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.Permission;
 
 import java.io.*;
 import java.util.Collections;
@@ -42,6 +43,24 @@ public class GoogleDriveUtils
         try {
             return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), getCredential()).setApplicationName(APPLICATION_NAME).build();
         }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Permission createPermissionPublic(String fileID){
+        try
+        {
+            String permissionType = "anyone";
+            String permissionRole = "reader";
+            Permission permission = new Permission();
+            permission.setType(permissionType);
+            permission.setRole(permissionRole);
+            Drive drive = GoogleDriveUtils.getDrive();
+            return drive.permissions().create(fileID, permission).execute();
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         return null;
