@@ -12,10 +12,6 @@ public interface UserService
 
     ResponseResult register(UserDTO userDTO, String lang);
 
-    User getUserById(int id);
-
-    void update(User user);
-
     ResponseResult activeAccount(String code);
 
     void upload();

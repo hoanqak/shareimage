@@ -7,9 +7,7 @@ import com.entity.AccessToken;
 import com.entity.Image;
 import com.entity.User;
 import com.service.base.BaseService;
-import com.service.mail.SendMailSMTP;
-import com.service.mail.SendMailService;
-import com.service.mail.TemplateMail;
+import com.service.mail.SendMailActivateAccount;
 import com.service.notification.ErrorCode;
 import com.service.notification.LocalizationMessage;
 import com.service.notification.ResponseResult;
@@ -28,16 +26,16 @@ public class UserServiceImpl extends BaseService implements UserService
 {
     @Autowired HibernateUtils hibernateUtils;
     @Autowired DozerService dozerService;
-    @Autowired MD5 md5;
-    private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
-    @Autowired SendMailService sendMailService;
-    @Autowired SendMailSMTP sendMail;
+    @Autowired SendMailActivateAccount sendMail;
     @Autowired LocalizationMessage localizationMessage;
     @Value("${cus.host}")
     private String host;
-
+    @Value("${server.port}")
+    private int port;
+    private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
     private String apiVerify = "api/activated?code=";
-
+    @Value("${mail.user}")
+    private String email;
     @Override
     public ResponseResult loginUser(UserDTO userDTO)
     {
@@ -48,7 +46,7 @@ public class UserServiceImpl extends BaseService implements UserService
         List<User> userList = query.getResultList();
         if(userList != null && userList.size() > 0){
             User user =  userList.get(0);
-            if(!md5.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
+            if(!MD5Converter.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
                 return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
             }
             AccessToken accessToken = getAccessToken(user.getId());
@@ -90,37 +88,20 @@ public class UserServiceImpl extends BaseService implements UserService
             if(userDTO.getPassword().equals(userDTO.getRePassword())){
                 User user = new User();
                 user.setUsername(userDTO.getUsername());
-                user.setPassword(md5.convertToMD5(userDTO.getPassword()));
+                user.setPassword(MD5Converter.convertToMD5(userDTO.getPassword()));
                 user.setEmail(userDTO.getEmail());
                 user.setActive(false);
                 int id = (int) save(user);
-                String templateMailActive = TemplateMail.getTemplateVerifyAccount();
-                String linkActive = String.format(templateMailActive, host + apiVerify + md5.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id);
                 String subject = localizationMessage.getMessageByLocale("label.verify.account", locale);
-                sendMail.send(userDTO.getEmail(), subject, linkActive);
+                sendMail.createMail(userDTO.getEmail(), subject, new String[] {
+                        host + port + apiVerify + MD5Converter.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
+                        email}).sendService();
                 return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
             }
         }
         session.close();
         return ResponseResult.failed(ErrorCode.PASSWORD_IVALID);
     }
-
-    @Override
-    public User getUserById(int id)
-    {
-        Session session = hibernateUtils.getSessionFactory().openSession();
-        User user =  session.get(User.class, id);
-        session.close();
-        return user;
-    }
-
-    public void update(User user){
-        Session session = hibernateUtils.getSessionFactory().openSession();
-        session.update(user);
-        session.beginTransaction().commit();
-        session.close();
-    }
-
 
     public AccessToken getAccessToken(int userID){
         Session session = hibernateUtils.getSessionFactory().openSession();
@@ -139,7 +120,7 @@ public class UserServiceImpl extends BaseService implements UserService
     public ResponseResult activeAccount(String code){
         try
         {
-            User user = getUserById(Integer.parseInt(code.split("-")[1]));
+            User user = (User) getById(new User(), Integer.parseInt(code.split("-")[1]));
             if(user != null)
             {
                 if(user.isActive()){
@@ -158,10 +139,7 @@ public class UserServiceImpl extends BaseService implements UserService
 
     public void upload(){
         File file = new File(File.separator + "home.jpg");
-            byte[] bFile = new byte[(int) file.length()];
-            System.out.println(bFile);
-            Session session = hibernateUtils.getSessionFactory().openSession();
-
+        byte[] bFile = new byte[(int) file.length()];
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             fileInputStream.read(bFile);
@@ -173,8 +151,6 @@ public class UserServiceImpl extends BaseService implements UserService
             image.setSize((int) file.length());
             image.setFileName(file.getName());
             image.setImage(bFile);
-            session.save(image);
-            session.beginTransaction().commit();
-            session.close();
+            save(image);
     }
 }

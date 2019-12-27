@@ -1,14 +1,12 @@
 package com.service;
 
-import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-@Service
-public class MD5
+public class MD5Converter
 {
-    public String convertToMD5(String input){
+    public static String convertToMD5(String input){
         try
         {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");

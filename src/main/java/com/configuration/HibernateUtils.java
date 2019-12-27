@@ -57,8 +57,8 @@ public class HibernateUtils
         properties.put(Environment.DRIVER, DRIVER);
         properties.put(Environment.USER, USERNAME);
         properties.put(Environment.PASS, PASSWORD);
-        properties.put(Environment.SHOW_SQL, true);
-        properties.put(Environment.FORMAT_SQL, true);
+//        properties.put(Environment.SHOW_SQL, true);
+//        properties.put(Environment.FORMAT_SQL, true);
         properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
         return properties;
     }
