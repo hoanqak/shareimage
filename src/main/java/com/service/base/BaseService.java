@@ -10,10 +10,11 @@ import java.io.Serializable;
 @Service
 public class BaseService
 {
+
     @Autowired HibernateUtils hibernateUtils;
-    public Object getById(Object entity, int id){
+    public Object getById(String entityName, int id){
         Session session = hibernateUtils.getSessionFactory().openSession();
-        Object object =  session.get(entity.getClass(), id);
+        Object object =  session.get(entityName, id);
         session.close();
         return object;
     }

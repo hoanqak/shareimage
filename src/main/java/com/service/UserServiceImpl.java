@@ -12,6 +12,7 @@ import com.service.notification.ErrorCode;
 import com.service.notification.LocalizationMessage;
 import com.service.notification.ResponseResult;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ public class UserServiceImpl extends BaseService implements UserService
     @Autowired DozerService dozerService;
     @Autowired SendMailActivateAccount sendMail;
     @Autowired LocalizationMessage localizationMessage;
+    @Autowired AccessTokenService accessTokenService;
     @Value("${cus.host}")
     private String host;
     @Value("${server.port}")
@@ -49,7 +51,7 @@ public class UserServiceImpl extends BaseService implements UserService
             if(!MD5Converter.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
                 return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
             }
-            AccessToken accessToken = getAccessToken(user.getId());
+            AccessToken accessToken = accessTokenService.getByID(user.getId());
             if(accessToken == null){
                 accessToken = new AccessToken();
                 accessToken.setAccessToken(RandomStringUtils.randomAlphanumeric(64) + user.getId());
@@ -81,7 +83,7 @@ public class UserServiceImpl extends BaseService implements UserService
         }
 
         if(userDTO.getEmail() == null || !Validation.validEmail(userDTO.getEmail())){
-            return ResponseResult.failed(ErrorCode.IVALID_EMAIL);
+            return ResponseResult.failed(ErrorCode.INVALID_EMAIL);
         }
 
         if(userDTO.getPassword() != null && userDTO.getRePassword() != null){
@@ -120,7 +122,7 @@ public class UserServiceImpl extends BaseService implements UserService
     public ResponseResult activeAccount(String code){
         try
         {
-            User user = (User) getById(new User(), Integer.parseInt(code.split("-")[1]));
+            User user = (User) getById(User.class.getName(), Integer.parseInt(code.split("-")[1]));
             if(user != null)
             {
                 if(user.isActive()){
@@ -135,6 +137,15 @@ public class UserServiceImpl extends BaseService implements UserService
             return ResponseResult.failed(ErrorCode.ERROR_CODE_VERIFY);
         }
         return ResponseResult.failed(ErrorCode.USER_NOT_EXISTS);
+    }
+
+    @Override
+    public ResponseResult updateProfile(String accessToken)
+    {
+        if(StringUtils.isEmpty(accessToken)){
+            return ResponseResult.failed(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
+        return null;
     }
 
     public void upload(){
@@ -153,4 +164,7 @@ public class UserServiceImpl extends BaseService implements UserService
             image.setImage(bFile);
             save(image);
     }
+
+
+
 }

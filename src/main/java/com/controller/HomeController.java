@@ -37,7 +37,7 @@ public class HomeController
     @ResponseBody
     @GetMapping("getUser")
     public void get(){
-        System.out.println(baseService.getById(new AccessToken(), 1));
+        System.out.println(baseService.getById(AccessToken.class.getName(), 1));
     }
 
     @GetMapping("/check-session")
@@ -53,7 +53,6 @@ public class HomeController
 
     @PostMapping("/login")
     public String login(){
-//        System.out.println(user);
         return "index";
     }
 }

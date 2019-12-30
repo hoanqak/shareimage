@@ -8,6 +8,7 @@ public class ErrorCode
 
     public final static String PASSWORD_IVALID = "PASSWORD_IVALID";
     public final static String SUCCESS = "SUCCESS";
-    public final static String IVALID_EMAIL = "IVALID_EMAIL";
+    public final static String INVALID_EMAIL = "INVALID_EMAIL";
     public final static String ERROR_CODE_VERIFY = "ERROR_CODE_VERIFY";
+    public final static String INVALID_ACCESS_TOKEN = "INVALID_ACCESS_TOKEN";
 }

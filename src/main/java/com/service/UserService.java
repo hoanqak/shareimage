@@ -2,6 +2,7 @@ package com.service;
 
 import com.dto.UserDTO;
 import com.entity.User;
+import com.service.base.BaseService;
 import com.service.notification.ResponseResult;
 import org.springframework.stereotype.Service;
 
@@ -14,5 +15,6 @@ public interface UserService
 
     ResponseResult activeAccount(String code);
 
-    void upload();
+    ResponseResult updateProfile(String accessToken);
+
 }

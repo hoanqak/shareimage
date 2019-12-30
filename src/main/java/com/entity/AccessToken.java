@@ -15,7 +15,7 @@ public class AccessToken extends EntityBaseService
     private int id;
     @Column
     private String accessToken;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }
