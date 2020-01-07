@@ -1,8 +1,12 @@
 package com.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "image")
@@ -14,7 +18,16 @@ public class Image implements Serializable
     private int id;
     @Column(name = "file_name")
     private String fileName;
+    @Column(name = "url_image")
+    private String urlImage;
     @Column
     private int size;
-    byte[] image;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    @Column
+    @CreationTimestamp
+    private Date createdAt;
+    @UpdateTimestamp
+    private Date updatedAt;
 }

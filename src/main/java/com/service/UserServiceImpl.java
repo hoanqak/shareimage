@@ -4,11 +4,10 @@ import com.configuration.HibernateUtils;
 import com.configuration.Validation;
 import com.dto.UserDTO;
 import com.entity.AccessToken;
-import com.entity.Image;
 import com.entity.User;
 import com.service.base.BaseService;
 import com.service.mail.SendMailActivateAccount;
-import com.service.notification.ErrorCode;
+import com.service.notification.NotificationCode;
 import com.service.notification.LocalizationMessage;
 import com.service.notification.ResponseResult;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Query;
-import java.io.*;
 import java.util.*;
 
 @Service
@@ -35,7 +33,7 @@ public class UserServiceImpl extends BaseService implements UserService
     @Value("${server.port}")
     private int port;
     private String queryFindByUsername = "FROM " +User.class.getName() +" as u where u.username = :username";
-    private String apiVerify = "api/activated?code=";
+    private String apiVerify = "/api/activeAPI?code=";
     @Value("${mail.user}")
     private String email;
     @Override
@@ -49,7 +47,7 @@ public class UserServiceImpl extends BaseService implements UserService
         if(userList != null && userList.size() > 0){
             User user =  userList.get(0);
             if(!MD5Converter.convertToMD5(userDTO.getPassword()).equals(user.getPassword())){
-                return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
+                return ResponseResult.failed(NotificationCode.ErrorCode.WRONG_USERNAME_OR_PASSWORD);
             }
             AccessToken accessToken = accessTokenService.getByID(user.getId());
             if(accessToken == null){
@@ -61,10 +59,10 @@ public class UserServiceImpl extends BaseService implements UserService
             session.close();
             Map map =new HashMap();
             map.put("accessToken", accessToken.getAccessToken());
-            return ResponseResult.isSuccess(ErrorCode.SUCCESS, map);
+            return ResponseResult.isSuccess(NotificationCode.SuccessCode.SUCCESS, map);
         }
         session.close();
-        return ResponseResult.failed(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
+        return ResponseResult.failed(NotificationCode.ErrorCode.WRONG_USERNAME_OR_PASSWORD);
     }
 
     @Override
@@ -79,11 +77,11 @@ public class UserServiceImpl extends BaseService implements UserService
         query.setParameter("username", userDTO.getUsername());
         List userList = query.getResultList();
         if(userList != null && userList.size() > 0){
-            return ResponseResult.failed(ErrorCode.USER_EXISTS);
+            return ResponseResult.failed(NotificationCode.ErrorCode.USER_EXISTS);
         }
 
         if(userDTO.getEmail() == null || !Validation.validEmail(userDTO.getEmail())){
-            return ResponseResult.failed(ErrorCode.INVALID_EMAIL);
+            return ResponseResult.failed(NotificationCode.ErrorCode.INVALID_EMAIL);
         }
 
         if(userDTO.getPassword() != null && userDTO.getRePassword() != null){
@@ -96,13 +94,13 @@ public class UserServiceImpl extends BaseService implements UserService
                 int id = (int) save(user);
                 String subject = localizationMessage.getMessageByLocale("label.verify.account", locale);
                 sendMail.createMail(userDTO.getEmail(), subject, new String[] {
-                        host + port + apiVerify + MD5Converter.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
+                        host + ":" + port + apiVerify + MD5Converter.convertToMD5(String.valueOf(userDTO.getUsername())) +"-"+id,
                         email}).sendService();
-                return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
+                return ResponseResult.isSuccess(NotificationCode.SuccessCode.SUCCESS, null);
             }
         }
         session.close();
-        return ResponseResult.failed(ErrorCode.PASSWORD_IVALID);
+        return ResponseResult.failed(NotificationCode.ErrorCode.PASSWORD_IVALID);
     }
 
     public AccessToken getAccessToken(int userID){
@@ -126,45 +124,25 @@ public class UserServiceImpl extends BaseService implements UserService
             if(user != null)
             {
                 if(user.isActive()){
-                    return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
+                    return ResponseResult.isSuccess(NotificationCode.SuccessCode.SUCCESS, null);
                 }
                 user.setActive(true);
                 update(user);
-                return ResponseResult.isSuccess(ErrorCode.SUCCESS, null);
+                return ResponseResult.isSuccess(NotificationCode.SuccessCode.SUCCESS, null);
             }
         }catch (IndexOutOfBoundsException e){
             e.printStackTrace();
-            return ResponseResult.failed(ErrorCode.ERROR_CODE_VERIFY);
+            return ResponseResult.failed(NotificationCode.ErrorCode.ERROR_CODE_VERIFY);
         }
-        return ResponseResult.failed(ErrorCode.USER_NOT_EXISTS);
+        return ResponseResult.failed(NotificationCode.ErrorCode.USER_NOT_EXISTS);
     }
 
     @Override
     public ResponseResult updateProfile(String accessToken)
     {
         if(StringUtils.isEmpty(accessToken)){
-            return ResponseResult.failed(ErrorCode.INVALID_ACCESS_TOKEN);
+            return ResponseResult.failed(NotificationCode.ErrorCode.INVALID_ACCESS_TOKEN);
         }
         return null;
     }
-
-    public void upload(){
-        File file = new File(File.separator + "home.jpg");
-        byte[] bFile = new byte[(int) file.length()];
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            fileInputStream.read(bFile);
-            fileInputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Image image = new Image();
-            image.setSize((int) file.length());
-            image.setFileName(file.getName());
-            image.setImage(bFile);
-            save(image);
-    }
-
-
-
 }

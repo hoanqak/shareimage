@@ -2,6 +2,7 @@ package com.configuration;
 
 import com.entity.AccessToken;
 import com.entity.Image;
+import com.entity.Profile;
 import com.entity.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -48,6 +49,8 @@ public class HibernateUtils
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(AccessToken.class);
         configuration.addAnnotatedClass(Image.class);
+        configuration.addAnnotatedClass(Profile.class);
+        configuration.addAnnotatedClass(Profile.class);
         return configuration;
     }
 

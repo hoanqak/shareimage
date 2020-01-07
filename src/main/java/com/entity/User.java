@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "user")
 @Entity
@@ -20,6 +21,8 @@ public class User
     private String password;
     private String email;
     private boolean active;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<Image> images;
     @CreationTimestamp
     private Date createdAt;
     @UpdateTimestamp

@@ -19,7 +19,10 @@ create table profile(
     sex bit, 	
     birthday date,
     user_id int not null,
-    foreign key(user_id) references user(id)
+    avatar varchar(500),
+    foreign key(user_id) references user(id),
+    createdAt date,
+    updatedAt date
 );
 
 create table access_token(
@@ -32,7 +35,11 @@ create table access_token(
 );
 create table image(
 	id int primary key auto_increment,
-    file_name varchar(200),
+    file_name varchar(100),
+    url_image varchar(500),
     size int,
-    image mediumblob
+    user_id int,
+    foreign key(user_id) references user(id),
+    createdAt date,
+    updatedAt date
 );
