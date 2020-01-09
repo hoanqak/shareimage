@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDX83xgwezlTRe1p_f2T0z2mQQogTuEh_Q&callback=initMap&libraries=geometry" async defer></script>
+  </head>
+  <body>
+
+    <div>
+      <input id='positionSearch' placeholder="Search"><button onclick='initMap()'></button>
+    </div>
+
+    <div id="map"></div>
+    <script>
+      var map;
+      var hanoi = {lat: 21.017030, lng: 105.783902};
+
+      var markerA;
+      var markerB;
+
+      function initMap() {
+        console.log(document.getElementById('positionSearch').value)
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: hanoi,
+        zoom: 16
+      });
+
+      markerB = new google.maps.Marker({position: {lng: 129.0208609, lat: 35.1455173}, map: map});
+      markerA = new google.maps.Marker({position: {lng: 139.0208609, lat: 37.1455173}, map: map});
+
+      var infoWindow = new google.maps.InfoWindow({map: map});
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          markerA = new google.maps.Marker({position: pos,map : map, icon: 'http://i.stack.imgur.com/orZ4x.png', center: pos});
+          var infoWindow = markerA.infoWindow;
+          map.setCenter(pos);
+
+
+          var distanceInMeters = google.maps.geometry.spherical.computeDistanceBetween(
+          markerA.getPosition(),
+          markerB.getPosition()
+         ); 
+         console.log("Distance in Kilometers: ", (distanceInMeters * 0.001));
+        });
+      }
+      
+    }
+    function addMarker(location, map) {
+      // Thêm marker vào vị trí đã click và add thêm laber khả dụng
+      // lấy các kí tự trong mảng các laber còn khả dụng
+      var marker = new google.maps.Marker({
+        position: location,
+        label: labels[labelIndex++ % labels.length],
+        map: map
+      });
+    }
+    </script>
+    
+  </body>
+</html>
